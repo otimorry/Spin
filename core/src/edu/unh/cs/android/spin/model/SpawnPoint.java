@@ -1,4 +1,4 @@
-package edu.unh.cs.android.spin;
+package edu.unh.cs.android.spin.model;
 
 import com.badlogic.gdx.math.Vector2;
 

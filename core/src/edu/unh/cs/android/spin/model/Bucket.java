@@ -1,4 +1,4 @@
-package edu.unh.cs.android.spin;
+package edu.unh.cs.android.spin.model;
 
 /**
  * Created by Olva on 5/16/15.
@@ -13,16 +13,31 @@ public class Bucket {
     private Rectangle bounds;
     private Color bucketColor;
     private Vector2 bucketLocation;
+    private int ballCount;
+    private boolean isActive;
     public static final int bucketSize = 100;
 
     public Bucket( Ball.Colors ballColor, Vector2 bucketLocation ) {
         this.bucketLocation = bucketLocation;
         bounds = new Rectangle( bucketLocation.x, bucketLocation.y, bucketSize, bucketSize );
         bucketColor = getBucketColor(ballColor);
+        ballCount = 0;
     }
 
 
     /** - - - - - - - - Setters - - - - - - - - **/
+
+    /* Increment the number of balls in the bucket by 1 */
+    public void incrementCount( ) {
+        ballCount++;
+    }
+
+    /* sets the state of the bucket
+     * isActive is true when there is something in the bucket
+     * false otherwise. */
+    public void setBucketState( boolean b ) {
+        isActive = b;
+    }
 
     /** - - - - - - - - Getters - - - - - - - - **/
 
@@ -51,4 +66,10 @@ public class Bucket {
 
     /* returns the bounds of the bucket */
     public Rectangle getBounds( ) { return bounds; }
+
+    /* returns the ball count in a bucket object */
+    public int getBallCount( ) { return ballCount; }
+
+    /* checks to see if there is a ball object in the bucket */
+    public boolean getBucketState( ) { return isActive; }
 }

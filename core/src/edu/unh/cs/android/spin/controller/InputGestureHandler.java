@@ -1,4 +1,4 @@
-package edu.unh.cs.android.spin;
+package edu.unh.cs.android.spin.controller;
 
 import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.math.Vector2;
