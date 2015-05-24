@@ -18,7 +18,8 @@ public class Ball {
     private double addX, addY;
     private double speedMult = 0.1;
     private Vector2 location, speed;
-    private static Texture img;
+    private Texture img;
+    public static final int BALLSIZE = 150;
 
     public enum Colors {
         /* use this format to add more colors */
@@ -30,29 +31,27 @@ public class Ball {
         public static Colors initBall( int num ) {
             switch( num ) {
                 case 0:
-                    img = new Texture("magic_ball_64.png");
                     return BLUE;
                 case 1:
-                    img = new Texture("magic_ball_64.png");
                     return RED;
                 case 2:
-                    img = new Texture("magic_ball_64.png");
                     return YELLOW;
                 case 3:
-                    img = new Texture("magic_ball_64.png");
                     return GREEN;
                 default: return null;
             }
         }
+
     }
+
     /* Creates a specific ball or a random-colored ball */
     public Ball( int id ) {
         location = new Vector2();
-        color = Colors.initBall( ( id % Colors.values().length ) );
+        color = Colors.initBall((id % Colors.values().length));
+        setTexture(color);
         location.x = 0; addX = 0;
         location.y = 0; addY = 0;
     }
-
     /** - - - - - - - - Setters - - - - - - - - **/
 
     /* sets ID of the ball object */
@@ -77,6 +76,21 @@ public class Ball {
     public void setAddXY(double x, double y) {
         addX = x * speedMult;
         addY = y * speedMult;
+    }
+
+    /* sets the texture of the ball object */
+    public void setTexture( Colors color ) {
+        if( color == Colors.GREEN ) {
+            img = new Texture( "GreenRing.gif" );
+        } else if( color == Colors.BLUE ) {
+            img = new Texture( "BlueRing.gif" );
+        } else if( color == Colors.YELLOW ) {
+            img = new Texture( "YellowRing.gif" );
+        } else if( color == Colors.RED ) {
+            img = new Texture( "RedRing.gif" );
+        } else {
+            img = null;
+        }
     }
 
     /** - - - - - - - - Getters - - - - - - - - **/

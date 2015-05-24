@@ -67,6 +67,7 @@ public class MyGdxGame extends ApplicationAdapter {
 
     @Override
     public void render() {
+        //TODO: Refactor all logic into one class -> GameLogic.
         /* clear the screen */
         Gdx.gl.glClearColor(0.9f, 0.9f, 0.9f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
@@ -102,7 +103,8 @@ public class MyGdxGame extends ApplicationAdapter {
         } else {
             batch.draw(gameBalls.peek().getImage(),
                     gameBalls.peek().getLocation().x,
-                    gameBalls.peek().getLocation().y);
+                    gameBalls.peek().getLocation().y,
+                    gameBalls.peek().BALLSIZE, gameBalls.peek().BALLSIZE );
         }
 
         /* If actionThrow has been modified and is ready to be used */
@@ -163,12 +165,12 @@ public class MyGdxGame extends ApplicationAdapter {
             actionQueue.peek().setState(false);
         }
 
-        //TODO: remove balls when it enters the correct bin
         /* draw shit */
 
         for( Ball ball : flyingBalls ) {
             ball.update();
-            batch.draw(ball.getImage(), ball.getLocation().x, ball.getLocation().y);
+            batch.draw(ball.getImage(), ball.getLocation().x, ball.getLocation().y,
+                    ball.BALLSIZE, ball.BALLSIZE );
 
             if( ball.getLocation().x >= Gdx.graphics.getWidth() || ball.getLocation().x <= 0 ||
                     ball.getLocation().y >= Gdx.graphics.getHeight() || ball.getLocation().y <= 0 ) {
