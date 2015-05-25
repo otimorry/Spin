@@ -142,10 +142,10 @@ public class MyGdxGame extends ApplicationAdapter {
             /** IMPORTANT REFACTOR THIS SHIT **/
             /* Potentially change to spawnPoints.poll() after
              * to simulate multiple spawn points */
-            double initX = actionQueue.peek().getInitLoc().x;
-            double initY = actionQueue.peek().getInitLoc().y;
-            double endX = actionQueue.peek().getEndLoc().x;
-            double endY = actionQueue.peek().getEndLoc().y;
+            double initX = actionQueue.peek().getTouchDownCoordinate().x;
+            double initY = actionQueue.peek().getTouchDownCoordinate().y;
+            double endX = actionQueue.peek().getTouchUpCoordinate().x;
+            double endY = actionQueue.peek().getTouchUpCoordinate().y;
 
             double diffX = endX - initX;
             double diffY = endY - initY;

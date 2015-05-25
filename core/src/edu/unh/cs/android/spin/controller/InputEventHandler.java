@@ -35,15 +35,15 @@ public class InputEventHandler implements InputProcessor {
 
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        Vector2 initVal = new Vector2( screenX, screenY );
-        actionQueue.peek().setInitLoc(initVal);
+        Vector2 touchDownCoordinate = new Vector2( screenX, screenY );
+        actionQueue.peek().setTouchDownCoordinate( touchDownCoordinate );
         return false;
     }
 
     @Override
     public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-        Vector2 endVal = new Vector2( screenX, screenY );
-        actionQueue.peek().setEndLoc(endVal);
+        Vector2 touchUpCoordinate = new Vector2( screenX, screenY );
+        actionQueue.peek().setTouchUpCoordinate( touchUpCoordinate );
         return false;
     }
 

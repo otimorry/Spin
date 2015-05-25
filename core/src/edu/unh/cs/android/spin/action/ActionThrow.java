@@ -5,28 +5,32 @@ import com.badlogic.gdx.math.Vector2;
 public class ActionThrow implements Action {
 
     private double angle;
-    private Vector2 speed, endLoc, initLoc;
+    private Vector2 speed, touchDownCoordinate, touchUpCoordinate;
     private boolean state;
 
     public ActionThrow( ) {
         angle = 0.0;
-        speed = endLoc = initLoc = null;
+        speed = touchDownCoordinate = touchUpCoordinate = null;
         state = false;
     }
 
     /** - - - - - - - - Setters - - - - - - - - **/
 
     /* records angle of ActionThrow */
-    public void setAngle( double a ) { angle = a; }
+    public void setAngle( double angle ) { this.angle = angle; }
 
     /* records Fling velocity */
-    public void setSpeed( Vector2 sp ) { speed = sp; }
+    public void setSpeed( Vector2 speed ) { this.speed = speed; }
 
     /* records touchUp location */
-    public void setEndLoc( Vector2 end ) { endLoc = end; }
+    public void setTouchUpCoordinate( Vector2 touchUpCoordinate ) {
+        this.touchUpCoordinate = touchUpCoordinate;
+    }
 
     /* records touchDown location */
-    public void setInitLoc( Vector2 init ) { initLoc = init; }
+    public void setTouchDownCoordinate( Vector2 touchDownCoordinate ) {
+        this.touchDownCoordinate = touchDownCoordinate;
+    }
 
     /* sets the state of ActionThrow
     *  when its false actionThrow has not been used yet
@@ -43,12 +47,12 @@ public class ActionThrow implements Action {
     /* gets the speed of the ball */
     public Vector2 getSpeed() { return speed; }
 
-    /* gets touchdown location */
-    public Vector2 getEndLoc( ) { return endLoc; }
-
     /* checks if actionThrow has been used or not */
     public boolean getState( ) { return state; }
 
     /* gets touchUp location */
-    public Vector2 getInitLoc() { return initLoc; }
+    public Vector2 getTouchUpCoordinate( ) { return touchUpCoordinate; }
+
+    /* gets touchDown location */
+    public Vector2 getTouchDownCoordinate() { return touchDownCoordinate; }
 }

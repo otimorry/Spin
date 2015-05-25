@@ -13,7 +13,6 @@ public class InputGestureHandler implements GestureDetector.GestureListener {
 
     public InputGestureHandler(Queue<ActionThrow> actionQueue) {
         this.actionQueue = actionQueue;
-        System.out.println( "1ActionThrow: " + actionQueue.peek() );
     }
 
     @Override
@@ -33,8 +32,8 @@ public class InputGestureHandler implements GestureDetector.GestureListener {
 
     @Override
     public boolean fling(float velocityX, float velocityY, int button) {
-        Vector2 speed = new Vector2(velocityX, velocityY);
-        actionQueue.peek().setSpeed(speed);
+        Vector2 flingVelocity = new Vector2(velocityX, velocityY);
+        actionQueue.peek().setSpeed(flingVelocity);
         actionQueue.peek().setState(true);
         return false;
     }

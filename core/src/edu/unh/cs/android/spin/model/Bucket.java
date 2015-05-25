@@ -35,8 +35,8 @@ public class Bucket {
     /* sets the state of the bucket
      * isActive is true when there is something in the bucket
      * false otherwise. */
-    public void setBucketState( boolean b ) {
-        isActive = b;
+    public void setBucketState( boolean isActive ) {
+        this.isActive = isActive;
     }
 
     /** - - - - - - - - Getters - - - - - - - - **/
