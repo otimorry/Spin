@@ -7,18 +7,27 @@ import com.badlogic.gdx.math.Vector2;
  */
 public class SpawnPoint {
 
+    //region Fields
     private Vector2 spawnPoint;
+    //endregion Fields
 
+    //region Constructor
     public SpawnPoint( Vector2 spawnPoint ) {
         this.spawnPoint = spawnPoint;
     }
+    //endregion Constructor
 
-    /** - - - - - - - - Setters - - - - - - - - **/
+    //region Mutators
+    /** - - - - - - - - Mutators - - - - - - - - **/
 
     public void setSpawnPoint( Vector2 spawn ) { this.spawnPoint = spawn; }
 
-    /** - - - - - - - - Getters - - - - - - - - **/
+    //endregion Mutators
+
+    //region Accessors
+    /** - - - - - - - - Accessors - - - - - - - - **/
 
     public Vector2 getSpawnPoint( ) { return spawnPoint; };
 
+    //endregion Accessors
 }

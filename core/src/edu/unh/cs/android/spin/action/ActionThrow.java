@@ -4,17 +4,22 @@ import com.badlogic.gdx.math.Vector2;
 
 public class ActionThrow implements Action {
 
+    //region Fields
     private double angle;
     private Vector2 speed, touchDownCoordinate, touchUpCoordinate;
     private boolean state;
+    //endregion Fields
 
+    //region Constructor
     public ActionThrow( ) {
         angle = 0.0;
         speed = touchDownCoordinate = touchUpCoordinate = null;
         state = false;
     }
+    //endregion Constructor
 
-    /** - - - - - - - - Setters - - - - - - - - **/
+    //region Mutators
+    /** - - - - - - - - Mutators - - - - - - - - **/
 
     /* records angle of ActionThrow */
     public void setAngle( double angle ) { this.angle = angle; }
@@ -38,8 +43,10 @@ public class ActionThrow implements Action {
     *  this class then sets the state back to false
     **/
     public void setState( boolean bool ) { state = bool; }
+    //endregion Mutators
 
-    /** - - - - - - - - Getters - - - - - - - - **/
+    //region Accessors
+    /** - - - - - - - - Accessors - - - - - - - - **/
 
     /* get the angle of the ball */
     public double getAngle() { return angle; }
@@ -55,4 +62,5 @@ public class ActionThrow implements Action {
 
     /* gets touchDown location */
     public Vector2 getTouchDownCoordinate() { return touchDownCoordinate; }
+    //endregion Accessors
 }

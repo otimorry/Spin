@@ -12,6 +12,7 @@ import com.badlogic.gdx.math.Vector2;
 
 public class Ball {
 
+    //region Fields
     /* Global Variables */
     private Colors color;
     private String name;
@@ -20,7 +21,9 @@ public class Ball {
     private Vector2 location, speed;
     private Texture img;
     public static final int BALLSIZE = 150;
+    //endregion Fields
 
+    //region Enum
     public enum Colors {
         /* use this format to add more colors */
         BLUE, RED, YELLOW, GREEN;
@@ -43,39 +46,28 @@ public class Ball {
         }
 
     }
+    //endregion Enum
 
+    //region Constructor
     /* Creates a specific ball or a random-colored ball */
     public Ball( int id ) {
-        location = new Vector2();
         color = Colors.initBall((id % Colors.values().length));
+        initializeBall(color);
+    }
+
+    public Ball( Colors color ) {
+        initializeBall(color);
+    }
+    //endregion Constructor
+
+    //region Initialize
+    /** - - - - - - - - Initialize - - - - - - - **/
+
+    private void initializeBall( Colors color ) {
+        location = new Vector2();
         setTexture(color);
         location.x = 0; addX = 0;
         location.y = 0; addY = 0;
-    }
-    /** - - - - - - - - Setters - - - - - - - - **/
-
-    /* sets ID of the ball object */
-    public void setName( String name ) { this.name = name; }
-
-    /* changes the speed field of the ball object */
-    public void setSpeed( Vector2 speed ) { this.speed = speed; }
-
-    /* sets the location of the ball object */
-    public void setLocation( Vector2 loc ) {
-        location.x = loc.x;
-        location.y = loc.y;
-    }
-
-    /* updates the location of the ball object */
-    public void update() {
-        location.x += addX;
-        location.y += addY;
-    }
-
-    /* updates addX and addY field */
-    public void setAddXY(double x, double y) {
-        addX = x * speedMult;
-        addY = y * speedMult;
     }
 
     /* sets the texture of the ball object */
@@ -92,8 +84,38 @@ public class Ball {
             img = null;
         }
     }
+    //endregion Initialize
 
-    /** - - - - - - - - Getters - - - - - - - - **/
+    //region Mutators
+    /** - - - - - - - - Mutators - - - - - - - - **/
+
+    /* sets ID of the ball object */
+    public void setName( String name ) { this.name = name; }
+
+    /* changes the speed field of the ball object */
+    public void setSpeed( Vector2 speed ) { this.speed = speed; }
+
+    /* sets the location of the ball object */
+    public void setLocation( Vector2 loc ) {
+        location.x = loc.x;
+        location.y = loc.y;
+    }
+
+    /* updates addX and addY field */
+    public void setAddXY(double x, double y) {
+        addX = x * speedMult;
+        addY = y * speedMult;
+    }
+
+    /* updates the location of the ball object */
+    public void update() {
+        location.x += addX;
+        location.y += addY;
+    }
+    //endregion Mutators
+
+    //region Accessors
+    /** - - - - - - - - Accessors - - - - - - - - **/
 
     /* returns the name of the ball */
     public String getName( ) { return name; }
@@ -101,9 +123,11 @@ public class Ball {
     /* returns the id-color of the ball */
     public Colors getColor( ) { return color; }
 
+
+
+
     /* gets the speed of the object */
     public Vector2 getSpeed( ) { return speed; }
-
     /* returns the location of the ball object */
     public Vector2 getLocation( ) {
         return location;
@@ -119,6 +143,6 @@ public class Ball {
         Ball b1 = new Ball( 0 ); // put a random value here
         System.out.println( b1.color );
     }
-
+    //endregion Accessors
 
 }

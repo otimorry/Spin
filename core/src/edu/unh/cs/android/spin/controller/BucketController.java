@@ -7,12 +7,17 @@ import edu.unh.cs.android.spin.model.Bucket;
  */
 public class BucketController implements IController {
 
+    //region Fields
     private final Bucket bucket;
+    //endregion Fields
 
+    //region Constructor
     public BucketController(Bucket bucket) {
         this.bucket = bucket;
     }
+    //endregion Constructor
 
+    //region @Override Methods
     @Override
     public void update() {
         if( bucket.getBucketState() ) {
@@ -20,4 +25,5 @@ public class BucketController implements IController {
             bucket.setBucketState(false);
         }
     }
+    //endregion @Override Methods
 }

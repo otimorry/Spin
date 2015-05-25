@@ -10,22 +10,26 @@ import com.badlogic.gdx.math.Vector2;
 
 public class Bucket {
 
+    //region Fields
     private Rectangle bounds;
     private Color bucketColor;
     private Vector2 bucketLocation;
     private int ballCount;
     private boolean isActive;
     public static final int bucketSize = 100;
+    //endregion Fields
 
+    //region Constructor
     public Bucket( Ball.Colors ballColor, Vector2 bucketLocation ) {
         this.bucketLocation = bucketLocation;
         bounds = new Rectangle( bucketLocation.x, bucketLocation.y, bucketSize, bucketSize );
         bucketColor = getBucketColor(ballColor);
         ballCount = 0;
     }
+    //endregion Constructor
 
-
-    /** - - - - - - - - Setters - - - - - - - - **/
+    //region Mutators
+    /** - - - - - - - - Mutators - - - - - - - - **/
 
     /* Increment the number of balls in the bucket by 1 */
     public void incrementCount( ) {
@@ -38,8 +42,10 @@ public class Bucket {
     public void setBucketState( boolean isActive ) {
         this.isActive = isActive;
     }
+    //endregion Mutators
 
-    /** - - - - - - - - Getters - - - - - - - - **/
+    //region Accessors
+    /** - - - - - - - - Accessors - - - - - - - - **/
 
     /* returns the color of the ball */
     public Color getBucketColor( Ball.Colors ballColor ) {
@@ -72,4 +78,5 @@ public class Bucket {
 
     /* checks to see if there is a ball object in the bucket */
     public boolean getBucketState( ) { return isActive; }
+    //endregion Accessors
 }

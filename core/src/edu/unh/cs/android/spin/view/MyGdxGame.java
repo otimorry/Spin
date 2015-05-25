@@ -28,6 +28,7 @@ import edu.unh.cs.android.spin.model.Bucket;
 import edu.unh.cs.android.spin.model.SpawnPoint;
 
 public class MyGdxGame extends ApplicationAdapter {
+    //region Fields
     private SpriteBatch batch;
     private ShapeRenderer shapeRenderer;
     private BitmapFont font;
@@ -41,7 +42,9 @@ public class MyGdxGame extends ApplicationAdapter {
     private final ArrayList<Ball> outBalls = new ArrayList<>();
     private final ArrayList<Bucket> buckets = new ArrayList<>();
     private Random rng;
+    //endregion Fields
 
+    //region create
     @Override
     public void create() {
         batch = new SpriteBatch();
@@ -83,12 +86,9 @@ public class MyGdxGame extends ApplicationAdapter {
 
         // TODO Create an object store to keep track of the object on the field (e.g. flying balls)
     }
+    //endregion create
 
-    @Override
-    public void resize(int width, int height) {
-
-    }
-
+    //region render
     @Override
     public void render() {
         //TODO: Refactor all logic into one class -> GameLogic.
@@ -106,7 +106,7 @@ public class MyGdxGame extends ApplicationAdapter {
         for( Bucket bucket : buckets ) {
             shapeRenderer.setColor( bucket.getColor() );
             shapeRenderer.rect( bucket.getLocation().x, bucket.getLocation().y,
-                                Bucket.bucketSize, Bucket.bucketSize );
+                    Bucket.bucketSize, Bucket.bucketSize );
         }
 
         shapeRenderer.end();
@@ -233,6 +233,12 @@ public class MyGdxGame extends ApplicationAdapter {
 
         batch.end();
         /** end batch **/
+    }
+    //endregion render
+
+    @Override
+    public void resize(int width, int height) {
+
     }
 
     @Override

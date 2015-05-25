@@ -7,13 +7,18 @@ import java.util.ArrayList;
  */
 public class ControllerManager {
 
+    //region Fields
     public ArrayList<IController> controllers;
+    //endregion Fields
 
+    //region Constructor
     public ControllerManager( ) {
         controllers = new ArrayList<>();
     }
+    //endregion Constructor
 
-    /* - - - - - - - - Setters - - - - - - - - */
+    //region Mutators
+    /** - - - - - - - - Mutators - - - - - - - - **/
 
     public void addController( IController controller ) {
         controllers.add(controller);
@@ -22,8 +27,10 @@ public class ControllerManager {
     public void removeController( IController controller ) {
         controllers.remove(controller);
     }
+    //endregion Mutators
 
-    /* - - - - - - - - Getters - - - - - - - - */
+    //region Accessors
+    /** - - - - - - - - Accessors - - - - - - - - **/
 
     public ArrayList<IController> getControllers() {
         return controllers;
@@ -34,4 +41,5 @@ public class ControllerManager {
             controller.update();
         }
     }
+    //endregion Accessors
 }

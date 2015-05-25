@@ -9,12 +9,17 @@ import edu.unh.cs.android.spin.action.Action;
 import edu.unh.cs.android.spin.action.ActionThrow;
 
 public class InputGestureHandler implements GestureDetector.GestureListener {
+    //region Fields
     private final Queue<ActionThrow> actionQueue;
+    //endregion Fields
 
+    //region Constructor
     public InputGestureHandler(Queue<ActionThrow> actionQueue) {
         this.actionQueue = actionQueue;
     }
+    //endregion Constructor
 
+    //region @Override Methods
     @Override
     public boolean touchDown(float x, float y, int pointer, int button) {
         return false;
@@ -57,4 +62,5 @@ public class InputGestureHandler implements GestureDetector.GestureListener {
     public boolean pinch(Vector2 initialPointer1, Vector2 initialPointer2, Vector2 pointer1, Vector2 pointer2) {
         return false;
     }
+    //endregion @Override Methods
 }

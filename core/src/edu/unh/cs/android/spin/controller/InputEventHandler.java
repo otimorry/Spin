@@ -12,12 +12,17 @@ import edu.unh.cs.android.spin.action.ActionThrow;
  * @author Bence Cserna (csbence@gmail.com)
  */
 public class InputEventHandler implements InputProcessor {
+    //region Fields
     private final Queue<ActionThrow> actionQueue;
+    //endregion Fields
 
+    //region Constructor
     public InputEventHandler(Queue<ActionThrow> actionQueue) {
         this.actionQueue = actionQueue;
     }
+    //endregion Constructor
 
+    //region @Override Methods
     @Override
     public boolean keyDown(int keycode) {
         return false;
@@ -61,4 +66,5 @@ public class InputEventHandler implements InputProcessor {
     public boolean scrolled(int amount) {
         return false;
     }
+    //endregion @Override Methods
 }
