@@ -13,6 +13,7 @@ import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Queue;
 import java.util.Random;
@@ -32,15 +33,14 @@ public class MyGdxGame extends ApplicationAdapter {
     private SpriteBatch batch;
     private ShapeRenderer shapeRenderer;
     private BitmapFont font;
-    private Label scoreLabel;
-    private int gameScore;
-    private final ControllerManager controller = new ControllerManager();
+    private final ControllerManager controller = new ControllerManager(new InputMultiplexer());
     private final Queue<ActionThrow> actionQueue = new LinkedBlockingQueue<>();
     private final Queue<Ball> gameBalls = new LinkedBlockingQueue<>();
     private final Queue<SpawnPoint> spawnPoints = new LinkedBlockingQueue<>();
     private final ArrayList<Ball> flyingBalls = new ArrayList<>();
     private final ArrayList<Ball> outBalls = new ArrayList<>();
     private final ArrayList<Bucket> buckets = new ArrayList<>();
+    private final ArrayList<Label> bucketScores = new ArrayList<>();
     private Random rng;
     //endregion Fields
 
@@ -51,8 +51,6 @@ public class MyGdxGame extends ApplicationAdapter {
         shapeRenderer = new ShapeRenderer();
         rng = new Random();
         font = new BitmapFont();
-        scoreLabel = new Label( "Score: 0", new Label.LabelStyle(font, Color.WHITE));
-
 
         ActionThrow initActionThrow = new ActionThrow();
         actionQueue.offer(initActionThrow);
@@ -63,26 +61,22 @@ public class MyGdxGame extends ApplicationAdapter {
 
         /** Buckets **/
         /* How many buckets? */
-        final Bucket blueBucket = new Bucket( Ball.Colors.BLUE, new Vector2(0,0) );
+        final Bucket blueBucket = new Bucket( Ball.Colors.BLUE, new Vector2(0,0), font );
         final Bucket redBucket = new Bucket( Ball.Colors.RED, new Vector2(Gdx.graphics.getWidth() -
-                Bucket.bucketSize,0) );
+                Bucket.bucketSize,0 ), font );
         buckets.add( blueBucket );
         buckets.add( redBucket );
 
         /* ControllerManager */
         for( Bucket bucket : buckets ) {
             controller.addController( new BucketController(bucket));
+            bucketScores.add( bucket.getBucketLabel() );
         }
 
-        /* GameController - needs to be refactored later */
-        InputMultiplexer multiplexer = new InputMultiplexer();
-        final InputProcessor inputGesture = new GestureDetector(new InputGestureHandler(actionQueue));
-        final InputProcessor inputEvent = new InputEventHandler( actionQueue );
+        controller.addController(new InputEventHandler(actionQueue));
+        controller.addController(new InputGestureHandler(actionQueue));
 
-        multiplexer.addProcessor(inputEvent);
-        multiplexer.addProcessor(inputGesture);
-
-        Gdx.input.setInputProcessor(multiplexer);
+        Gdx.input.setInputProcessor(controller.getMultiplexer());
 
         // TODO Create an object store to keep track of the object on the field (e.g. flying balls)
     }
@@ -91,7 +85,7 @@ public class MyGdxGame extends ApplicationAdapter {
     //region render
     @Override
     public void render() {
-        //TODO: Refactor all logic into one class -> GameLogic.
+        //TODO: Refactor logic manipulation
         /* clear the screen */
         Gdx.gl.glClearColor(0.9f, 0.9f, 0.9f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
@@ -161,8 +155,6 @@ public class MyGdxGame extends ApplicationAdapter {
             System.out.println( "DiffX: " + diffX + " DiffY: " + diffY );
             System.out.println( "Angle: " + angle + " aX: " + aX + " aY: " + aY );
 
-
-            /* Get the next ball in Sequence */
             if( ball != null ) {
                 /* first quadrant */
                 if( diffX >= 0 && diffY < 0 ) {
@@ -206,28 +198,28 @@ public class MyGdxGame extends ApplicationAdapter {
             for( Bucket bucket: buckets ) {
                 if( bucket.getBounds().contains( ball.getLocation()) &&
                         bucket.getColor() == bucket.getBucketColor( ball.getColor() ) ) {
-                    System.out.println( "Hit! " + ball.getColor() + " Count: " + bucket.getBallCount());
-                    gameScore++;
                     bucket.setBucketState(true);
                     outBalls.add(ball);
                 } else if ( bucket.getBounds().contains( ball.getLocation()) &&
                         bucket.getColor() != bucket.getBucketColor( ball.getColor() ) ) {
-                    System.out.println("Miss! " + ball.getColor() + " Count: " +
-                            bucket.getBallCount() );
                     outBalls.add(ball);
                 }
 
             }
         }
 
+        controller.update();
+
         /* Clear ArrayList */
         for( Ball outBall: outBalls ) {
             flyingBalls.remove( outBall );
         }
 
-        controller.update();
-        scoreLabel.setText("Count: " + gameScore);
-        scoreLabel.draw(batch, 1.0f);
+
+        for( Label score : bucketScores )
+        {
+            score.draw( batch, 0.9f );
+        }
 
         outBalls.clear();
 

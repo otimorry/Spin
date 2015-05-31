@@ -11,7 +11,7 @@ import edu.unh.cs.android.spin.action.ActionThrow;
 /**
  * @author Bence Cserna (csbence@gmail.com)
  */
-public class InputEventHandler implements InputProcessor {
+public class InputEventHandler implements InputProcessor, IController {
     //region Fields
     private final Queue<ActionThrow> actionQueue;
     //endregion Fields
@@ -65,6 +65,11 @@ public class InputEventHandler implements InputProcessor {
     @Override
     public boolean scrolled(int amount) {
         return false;
+    }
+
+    @Override
+    public void update() {
+
     }
     //endregion @Override Methods
 }

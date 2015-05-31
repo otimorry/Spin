@@ -8,7 +8,7 @@ import java.util.Queue;
 import edu.unh.cs.android.spin.action.Action;
 import edu.unh.cs.android.spin.action.ActionThrow;
 
-public class InputGestureHandler implements GestureDetector.GestureListener {
+public class InputGestureHandler implements GestureDetector.GestureListener, IController {
     //region Fields
     private final Queue<ActionThrow> actionQueue;
     //endregion Fields
@@ -61,6 +61,11 @@ public class InputGestureHandler implements GestureDetector.GestureListener {
     @Override
     public boolean pinch(Vector2 initialPointer1, Vector2 initialPointer2, Vector2 pointer1, Vector2 pointer2) {
         return false;
+    }
+
+    @Override
+    public void update() {
+
     }
     //endregion @Override Methods
 }

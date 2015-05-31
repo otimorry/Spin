@@ -52,18 +52,18 @@ public class Ball {
     /* Creates a specific ball or a random-colored ball */
     public Ball( int id ) {
         color = Colors.initBall((id % Colors.values().length));
-        initializeBall(color);
+        init(color);
     }
 
     public Ball( Colors color ) {
-        initializeBall(color);
+        init(color);
     }
     //endregion Constructor
 
     //region Initialize
     /** - - - - - - - - Initialize - - - - - - - **/
 
-    private void initializeBall( Colors color ) {
+    private void init( Colors color ) {
         location = new Vector2();
         setTexture(color);
         location.x = 0; addX = 0;
