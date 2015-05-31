@@ -22,6 +22,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import edu.unh.cs.android.spin.action.ActionThrow;
 import edu.unh.cs.android.spin.controller.BucketController;
 import edu.unh.cs.android.spin.controller.ControllerManager;
+import edu.unh.cs.android.spin.controller.IDrawable;
 import edu.unh.cs.android.spin.controller.InputEventHandler;
 import edu.unh.cs.android.spin.controller.InputGestureHandler;
 import edu.unh.cs.android.spin.model.Ball;
@@ -35,12 +36,9 @@ public class MyGdxGame extends ApplicationAdapter {
     private BitmapFont font;
     private final ControllerManager controller = new ControllerManager(new InputMultiplexer());
     private final Queue<ActionThrow> actionQueue = new LinkedBlockingQueue<>();
-    private final Queue<Ball> gameBalls = new LinkedBlockingQueue<>();
     private final Queue<SpawnPoint> spawnPoints = new LinkedBlockingQueue<>();
-    private final ArrayList<Ball> flyingBalls = new ArrayList<>();
-    private final ArrayList<Ball> outBalls = new ArrayList<>();
-    private final ArrayList<Bucket> buckets = new ArrayList<>();
     private final ArrayList<Label> bucketScores = new ArrayList<>();
+    private final ArrayList<IDrawable> drawables = new ArrayList<>();
     private Random rng;
     //endregion Fields
 
@@ -64,14 +62,16 @@ public class MyGdxGame extends ApplicationAdapter {
         final Bucket blueBucket = new Bucket( Ball.Colors.BLUE, new Vector2(0,0), font );
         final Bucket redBucket = new Bucket( Ball.Colors.RED, new Vector2(Gdx.graphics.getWidth() -
                 Bucket.bucketSize,0 ), font );
-        buckets.add( blueBucket );
-        buckets.add( redBucket );
+        Bucket.buckets.add( blueBucket );
+        Bucket.buckets.add( redBucket );
 
         /* ControllerManager */
-        for( Bucket bucket : buckets ) {
+        for( Bucket bucket : Bucket.buckets ) {
             controller.addController( new BucketController(bucket));
-            bucketScores.add( bucket.getBucketLabel() );
+            bucketScores.add(bucket.getBucketLabel());
+            drawables.add(bucket);
         }
+
 
         controller.addController(new InputEventHandler(actionQueue));
         controller.addController(new InputGestureHandler(actionQueue));
@@ -97,7 +97,7 @@ public class MyGdxGame extends ApplicationAdapter {
         /** start of ShapeRenderer **/
         shapeRenderer.begin( ShapeRenderer.ShapeType.Filled );
 
-        for( Bucket bucket : buckets ) {
+        for( Bucket bucket : Bucket.buckets ) {
             shapeRenderer.setColor( bucket.getColor() );
             shapeRenderer.rect( bucket.getLocation().x, bucket.getLocation().y,
                     Bucket.bucketSize, Bucket.bucketSize );
@@ -110,118 +110,40 @@ public class MyGdxGame extends ApplicationAdapter {
         /** start batch **/
         batch.begin();
 
-        if( gameBalls.isEmpty() ) {
-            int rand = rng.nextInt(100);
-            Ball ball = new Ball(rand);
-            /* Potentially change to spawnPoints.poll() after
-             * to simulate multiple spawn points */
-            ball.setLocation( spawnPoints.peek().getSpawnPoint() );
-            ball.setName(Integer.toString(rand));
-            gameBalls.offer(ball);
+        Ball ball = null;
+        if( Ball.gameBalls.isEmpty() ) {
+            ball = Ball.refillGameBall(spawnPoints);
+            drawables.add(ball);
         } else {
-            batch.draw(gameBalls.peek().getImage(),
-                    gameBalls.peek().getLocation().x,
-                    gameBalls.peek().getLocation().y,
-                    gameBalls.peek().BALLSIZE, gameBalls.peek().BALLSIZE );
+            ball = Ball.gameBalls.peek();
         }
 
-        /* If actionThrow has been modified and is ready to be used */
-        if ( actionQueue.peek().getState() ) {
-
-            Ball ball = gameBalls.poll();
-            ball.setSpeed(actionQueue.peek().getSpeed());
-            //TODO: Fix the direction at which ball moves
-
-
-            /** IMPORTANT REFACTOR THIS SHIT **/
-            /* Potentially change to spawnPoints.poll() after
-             * to simulate multiple spawn points */
-            double initX = actionQueue.peek().getTouchDownCoordinate().x;
-            double initY = actionQueue.peek().getTouchDownCoordinate().y;
-            double endX = actionQueue.peek().getTouchUpCoordinate().x;
-            double endY = actionQueue.peek().getTouchUpCoordinate().y;
-
-            double diffX = endX - initX;
-            double diffY = endY - initY;
-            double distance = Math.sqrt( Math.pow(diffX,2) + Math.pow(diffY,2) );
-            double angle = Math.asin(diffY / distance);
-
-            double aX = distance * Math.cos( angle );
-            double aY = distance * Math.sin(angle);
-
-
-            System.out.println( "InitX: " + initX + " InitY: " + initY );
-            System.out.println( "EndX: " + endX + " EndY: " + endY );
-            System.out.println( "DiffX: " + diffX + " DiffY: " + diffY );
-            System.out.println( "Angle: " + angle + " aX: " + aX + " aY: " + aY );
-
-            if( ball != null ) {
-                /* first quadrant */
-                if( diffX >= 0 && diffY < 0 ) {
-                    aY = -aY;
-                }
-                /* second quadrant */
-                else if( diffX < 0 && diffY < 0 ) {
-                    aX = -aX;   aY = -aY;
-                }
-                /* third quadrant */
-                else if( diffX < 0 && diffY >= 0 ) {
-                    aX = -aX;   aY = -aY;
-                }
-                /* fourth quadrant */
-                else {
-                    aY = -aY;
-                }
-
-                ball.setAddXY( aX, aY );
-                flyingBalls.add(ball);
-            }
-
-            /* actionThrow has been used and is not ready */
-            actionQueue.peek().setState(false);
+        if( ball != null ) {
+            ball.calculateActionThrow(actionQueue);
         }
 
         /* draw shit */
+        //TODO: REFACTOR DRAW() IN ENTITY CLASSES
 
-        for( Ball ball : flyingBalls ) {
-            ball.update();
-            batch.draw(ball.getImage(), ball.getLocation().x, ball.getLocation().y,
-                    ball.BALLSIZE, ball.BALLSIZE );
 
-            if( ball.getLocation().x >= Gdx.graphics.getWidth() || ball.getLocation().x <= 0 ||
-                    ball.getLocation().y >= Gdx.graphics.getHeight() || ball.getLocation().y <= 0 ) {
-                System.out.println( "Ball-Out: " + ball.getName() );
-                outBalls.add(ball);
-            }
-
-            /* Collision Detection - need to find a better way */
-            for( Bucket bucket: buckets ) {
-                if( bucket.getBounds().contains( ball.getLocation()) &&
-                        bucket.getColor() == bucket.getBucketColor( ball.getColor() ) ) {
-                    bucket.setBucketState(true);
-                    outBalls.add(ball);
-                } else if ( bucket.getBounds().contains( ball.getLocation()) &&
-                        bucket.getColor() != bucket.getBucketColor( ball.getColor() ) ) {
-                    outBalls.add(ball);
-                }
-
-            }
+        for( IDrawable drawable : drawables ) {
+            drawable.draw(batch);
         }
 
         controller.update();
 
         /* Clear ArrayList */
-        for( Ball outBall: outBalls ) {
-            flyingBalls.remove( outBall );
+        for( Ball outBall: Ball.outBalls ) {
+            Ball.flyingBalls.remove(outBall);
+            drawables.remove(outBall);
         }
 
 
-        for( Label score : bucketScores )
-        {
+        for( Label score : bucketScores ) {
             score.draw( batch, 0.9f );
         }
 
-        outBalls.clear();
+        Ball.outBalls.clear();
 
         batch.end();
         /** end batch **/

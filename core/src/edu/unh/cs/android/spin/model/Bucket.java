@@ -5,12 +5,17 @@ package edu.unh.cs.android.spin.model;
  */
 
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 
-public class Bucket {
+import java.util.ArrayList;
+
+import edu.unh.cs.android.spin.controller.IDrawable;
+
+public class Bucket implements IDrawable {
 
     //region Fields
     private Rectangle bounds;
@@ -20,6 +25,7 @@ public class Bucket {
     private int ballCount;
     private boolean isActive;
     public static final int bucketSize = 100;
+    public static final ArrayList<Bucket> buckets = new ArrayList<>();
     //endregion Fields
 
     //region Constructor
@@ -58,7 +64,9 @@ public class Bucket {
         bucketLabel.setText("Count: " + ballCount);
     }
 
+    public void draw( Batch batch ) {
 
+    }
     //endregion Mutators
 
     //region Accessors

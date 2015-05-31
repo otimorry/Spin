@@ -1,7 +1,18 @@
 package edu.unh.cs.android.spin.model;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
+
+import java.util.ArrayList;
+import java.util.Queue;
+import java.util.Random;
+import java.util.concurrent.LinkedBlockingQueue;
+
+import edu.unh.cs.android.spin.action.ActionThrow;
+import edu.unh.cs.android.spin.controller.IDrawable;
 
 /**
  * Created by Olva on 4/8/15.
@@ -10,17 +21,22 @@ import com.badlogic.gdx.math.Vector2;
  */
 
 
-public class Ball {
+public class Ball implements IDrawable {
 
     //region Fields
     /* Global Variables */
+    private Texture img;
     private Colors color;
     private String name;
+    private Vector2 location, speed;
     private double addX, addY;
     private double speedMult = 0.1;
-    private Vector2 location, speed;
-    private Texture img;
+    private double distance, aX, aY, angle;
+    private static final Random rng = new Random();
     public static final int BALLSIZE = 150;
+    public static final ArrayList<Ball> flyingBalls = new ArrayList<>();
+    public static final Queue<Ball> gameBalls = new LinkedBlockingQueue<>();
+    public static final ArrayList<Ball> outBalls = new ArrayList<>();
     //endregion Fields
 
     //region Enum
@@ -107,10 +123,101 @@ public class Ball {
         addY = y * speedMult;
     }
 
+    /* creates a ball if queue is empty */
+    public static Ball refillGameBall( Queue<SpawnPoint> spawnPoints ) {
+        int rand = rng.nextInt(100);
+        Ball ball = new Ball(rand);
+        /* Potentially change to spawnPoints.poll() after
+         * to simulate multiple spawn points */
+        ball.setLocation( spawnPoints.peek().getSpawnPoint() );
+        ball.setName(Integer.toString(rand));
+        gameBalls.offer(ball);
+        return ball;
+    }
+
+    /* calculates angle, distance, steps */
+    public void calculateActionThrow( Queue<ActionThrow> actionQueue ) {
+        ActionThrow action = actionQueue.peek();
+        if ( action.getState() ) {
+            Ball ball = gameBalls.poll();
+            ball.setSpeed(actionQueue.peek().getSpeed());
+
+            double initX = action.getTouchDownCoordinate().x;
+            double initY = action.getTouchDownCoordinate().y;
+            double endX = action.getTouchUpCoordinate().x;
+            double endY = action.getTouchUpCoordinate().y;
+
+            double diffX = endX - initX;
+            double diffY = endY - initY;
+            distance = Math.sqrt( Math.pow(diffX,2) + Math.pow(diffY,2) );
+            angle = Math.asin(diffY / distance);
+
+            aX = distance * Math.cos(angle);
+            aY = distance * Math.sin(angle);
+
+            if( ball != null ) {
+                /* first quadrant */
+                if (diffX >= 0 && diffY < 0) {
+                    aY = -aY;
+                }
+                /* second quadrant */
+                else if (diffX < 0 && diffY < 0) {
+                    aX = -aX;
+                    aY = -aY;
+                }
+                /* third quadrant */
+                else if (diffX < 0 && diffY >= 0) {
+                    aX = -aX;
+                    aY = -aY;
+                }
+                /* fourth quadrant */
+                else {
+                    aY = -aY;
+                }
+
+                ball.setAddXY(aX, aY);
+                flyingBalls.add(ball);
+            }
+            actionQueue.peek().setState(false);
+        }
+    }
+
     /* updates the location of the ball object */
     public void update() {
         location.x += addX;
         location.y += addY;
+    }
+
+    public void draw( Batch batch ) {
+
+        batch.draw( this.getImage(), this.getLocation().x, this.getLocation().y,
+                    Ball.BALLSIZE, Ball.BALLSIZE);
+
+
+        for( Ball b : Ball.flyingBalls ) {
+            b.update();
+            batch.draw(b.getImage(), b.getLocation().x, b.getLocation().y,
+                    b.BALLSIZE, b.BALLSIZE );
+
+            if( b.getLocation().x >= Gdx.graphics.getWidth() || b.getLocation().x <= 0 ||
+                    b.getLocation().y >= Gdx.graphics.getHeight() || b.getLocation().y <= 0 ) {
+                System.out.println( "Ball-Out: " + b.getName() );
+                Ball.outBalls.add(b);
+            }
+
+            /* Collision Detection - need to find a better way */
+            for( Bucket bucket: Bucket.buckets ) {
+                if( bucket.getBounds().contains( b.getLocation()) &&
+                        bucket.getColor() == bucket.getBucketColor( b.getColor() ) ) {
+                    bucket.setBucketState(true);
+                    Ball.outBalls.add(b);
+                } else if ( bucket.getBounds().contains( b.getLocation()) &&
+                        bucket.getColor() != bucket.getBucketColor( b.getColor() ) ) {
+                    Ball.outBalls.add(b);
+                }
+
+            }
+        }
     }
     //endregion Mutators
 
@@ -122,8 +229,6 @@ public class Ball {
 
     /* returns the id-color of the ball */
     public Colors getColor( ) { return color; }
-
-
 
 
     /* gets the speed of the object */
