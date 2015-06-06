@@ -4,15 +4,11 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 
 import java.util.ArrayList;
-import java.util.Queue;
-import java.util.Random;
-import java.util.concurrent.LinkedBlockingQueue;
 
 import edu.unh.cs.android.spin.action.ActionThrow;
-import edu.unh.cs.android.spin.controller.IDrawable;
+import edu.unh.cs.android.spin.controller.IEntity;
 
 /**
  * Created by Olva on 4/8/15.
@@ -21,22 +17,25 @@ import edu.unh.cs.android.spin.controller.IDrawable;
  */
 
 
-public class Ball implements IDrawable {
+public class Ball implements IEntity {
 
     //region Fields
     /* Global Variables */
+    private Bucket bucket = null;
     private Texture img;
     private Colors color;
     private String name;
-    private Vector2 location, speed;
-    private double addX, addY;
+    private Vector2 speed;
+    private double stepX, stepY;
+    private int x, y;
     private double speedMult = 0.1;
-    private double distance, aX, aY, angle;
-    private static final Random rng = new Random();
+    private boolean inPlay = false;
+    private boolean isLastBall = false;
     public static final int BALLSIZE = 150;
-    public static final ArrayList<Ball> flyingBalls = new ArrayList<>();
-    public static final Queue<Ball> gameBalls = new LinkedBlockingQueue<>();
-    public static final ArrayList<Ball> outBalls = new ArrayList<>();
+
+    private final ArrayList<Ball> flyingBalls = new ArrayList<>();
+    private final ArrayList<Ball> outBalls = new ArrayList<>();
+
     //endregion Fields
 
     //region Enum
@@ -80,10 +79,7 @@ public class Ball implements IDrawable {
     /** - - - - - - - - Initialize - - - - - - - **/
 
     private void init( Colors color ) {
-        location = new Vector2();
         setTexture(color);
-        location.x = 0; addX = 0;
-        location.y = 0; addY = 0;
     }
 
     /* sets the texture of the ball object */
@@ -100,6 +96,10 @@ public class Ball implements IDrawable {
             img = null;
         }
     }
+
+    public void setBucket( Bucket bucket ) {
+        this.bucket = bucket;
+    }
     //endregion Initialize
 
     //region Mutators
@@ -113,34 +113,28 @@ public class Ball implements IDrawable {
 
     /* sets the location of the ball object */
     public void setLocation( Vector2 loc ) {
-        location.x = loc.x;
-        location.y = loc.y;
+        x = (int)loc.x;
+        y = (int)loc.y;
     }
 
     /* updates addX and addY field */
-    public void setAddXY(double x, double y) {
-        addX = x * speedMult;
-        addY = y * speedMult;
+    public void setSteps(double x, double y) {
+        stepX = x * speedMult;
+        stepY = y * speedMult;
     }
 
-    /* creates a ball if queue is empty */
-    public static Ball refillGameBall( Queue<SpawnPoint> spawnPoints ) {
-        int rand = rng.nextInt(100);
-        Ball ball = new Ball(rand);
-        /* Potentially change to spawnPoints.poll() after
-         * to simulate multiple spawn points */
-        ball.setLocation( spawnPoints.peek().getSpawnPoint() );
-        ball.setName(Integer.toString(rand));
-        gameBalls.offer(ball);
-        return ball;
+    public void setInPlay( boolean bool ) {
+        inPlay = bool;
     }
 
+    public void setLastBall( boolean bool ) {
+        isLastBall = bool;
+    }
+    //endregion Mutators
+
+    //region Logics
     /* calculates angle, distance, steps */
-    public void calculateActionThrow( Queue<ActionThrow> actionQueue ) {
-        ActionThrow action = actionQueue.peek();
-        if ( action.getState() ) {
-            Ball ball = gameBalls.poll();
-            ball.setSpeed(actionQueue.peek().getSpeed());
+    public void calculateActionThrow( ActionThrow action ) {
 
             double initX = action.getTouchDownCoordinate().x;
             double initY = action.getTouchDownCoordinate().y;
@@ -149,13 +143,13 @@ public class Ball implements IDrawable {
 
             double diffX = endX - initX;
             double diffY = endY - initY;
-            distance = Math.sqrt( Math.pow(diffX,2) + Math.pow(diffY,2) );
-            angle = Math.asin(diffY / distance);
+            double distance = Math.sqrt( Math.pow(diffX,2) + Math.pow(diffY,2) );
+            double angle = Math.asin(diffY / distance);
 
-            aX = distance * Math.cos(angle);
-            aY = distance * Math.sin(angle);
+            double aX = distance * Math.cos(angle);
+            double aY = distance * Math.sin(angle);
 
-            if( ball != null ) {
+            if( this != null ) {
                 /* first quadrant */
                 if (diffX >= 0 && diffY < 0) {
                     aY = -aY;
@@ -175,78 +169,86 @@ public class Ball implements IDrawable {
                     aY = -aY;
                 }
 
-                ball.setAddXY(aX, aY);
-                flyingBalls.add(ball);
+                setSteps(aX, aY);
             }
-            actionQueue.peek().setState(false);
-        }
     }
 
-    /* updates the location of the ball object */
-    public void update() {
-        location.x += addX;
-        location.y += addY;
+    public boolean checkOutOfBounds( Ball ball ) {
+        if( ball.getLocation().x >= Gdx.graphics.getWidth() || ball.getLocation().x <= 0 ||
+                ball.getLocation().y >= Gdx.graphics.getHeight() || ball.getLocation().y <= 0 ) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean checkCollision( Bucket bucket, Ball ball ) {
+        if( bucket.getBounds().contains( ball.getLocation() ) &&
+                bucket.getColor() == bucket.getBucketColor( ball.getColor() ) ) {
+            bucket.setBucketState(true);
+            return true;
+        }
+        return false;
+    }
+    //endregion Logics
+
+    //region Interface Methods
+    public void update( ) {
+        x += stepX;
+        y += stepY;
+
+        if( checkOutOfBounds(this) ) {
+            outBalls.add(this);
+            this.setInPlay(false);
+        }
+
+        if( bucket != null ) {
+            if( checkCollision(bucket,this)) {
+                bucket.setBucketState(true);
+                outBalls.add(this);
+                this.setInPlay(false);
+            }
+        }
     }
 
     public void draw( Batch batch ) {
-
-        batch.draw( this.getImage(), this.getLocation().x, this.getLocation().y,
-                    Ball.BALLSIZE, Ball.BALLSIZE);
-
-
-        for( Ball b : Ball.flyingBalls ) {
-            b.update();
-            batch.draw(b.getImage(), b.getLocation().x, b.getLocation().y,
-                    b.BALLSIZE, b.BALLSIZE );
-
-            if( b.getLocation().x >= Gdx.graphics.getWidth() || b.getLocation().x <= 0 ||
-                    b.getLocation().y >= Gdx.graphics.getHeight() || b.getLocation().y <= 0 ) {
-                System.out.println( "Ball-Out: " + b.getName() );
-                Ball.outBalls.add(b);
-            }
-
-            /* Collision Detection - need to find a better way */
-            for( Bucket bucket: Bucket.buckets ) {
-                if( bucket.getBounds().contains( b.getLocation()) &&
-                        bucket.getColor() == bucket.getBucketColor( b.getColor() ) ) {
-                    bucket.setBucketState(true);
-                    Ball.outBalls.add(b);
-                } else if ( bucket.getBounds().contains( b.getLocation()) &&
-                        bucket.getColor() != bucket.getBucketColor( b.getColor() ) ) {
-                    Ball.outBalls.add(b);
-                }
-
-            }
+        // dummy erase later
+        batch.draw( getImage(), 250, 250, Ball.BALLSIZE, Ball.BALLSIZE);
+        if( isInPlay() ) {
+            update( );
+            batch.draw( getImage(), getXLocation(), getYLocation(), Ball.BALLSIZE, Ball.BALLSIZE);
         }
     }
-    //endregion Mutators
+
+    public void clean( ) {
+        outBalls.clear();
+    }
+    //endregion Interface Methods
 
     //region Accessors
     /** - - - - - - - - Accessors - - - - - - - - **/
-
     /* returns the name of the ball */
     public String getName( ) { return name; }
-
     /* returns the id-color of the ball */
     public Colors getColor( ) { return color; }
-
-
     /* gets the speed of the object */
     public Vector2 getSpeed( ) { return speed; }
     /* returns the location of the ball object */
+    public int getXLocation( ) { return x; }
+    public int getYLocation( ) { return y; }
     public Vector2 getLocation( ) {
+        Vector2 location = new Vector2(x,y);
         return location;
     }
-
     /* returns the ball image */
     public Texture getImage( ){ return img; }
-
-
-    /** - - - - - - - - Main - - - - - - - - **/
-
-    public static void main( String[] args ) {
-        Ball b1 = new Ball( 0 ); // put a random value here
-        System.out.println( b1.color );
+    /* Has the ball been used */
+    public boolean isInPlay() { return inPlay; }
+    /* Is this the last ball */
+    public boolean isLastBall() { return isLastBall; }
+    /* steps */
+    public Vector2 getSteps() {
+        Vector2 steps = new Vector2( (float)stepX, (float)stepY );
+        return steps;
     }
     //endregion Accessors
 

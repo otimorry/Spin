@@ -4,6 +4,7 @@ package edu.unh.cs.android.spin.model;
  * Created by Olva on 5/16/15.
  */
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -11,11 +12,12 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 
-import java.util.ArrayList;
+import java.util.ConcurrentModificationException;
 
-import edu.unh.cs.android.spin.controller.IDrawable;
+import edu.unh.cs.android.spin.controller.ControllerManager;
+import edu.unh.cs.android.spin.controller.IEntity;
 
-public class Bucket implements IDrawable {
+public class Bucket implements IEntity {
 
     //region Fields
     private Rectangle bounds;
@@ -25,7 +27,6 @@ public class Bucket implements IDrawable {
     private int ballCount;
     private boolean isActive;
     public static final int bucketSize = 100;
-    public static final ArrayList<Bucket> buckets = new ArrayList<>();
     //endregion Fields
 
     //region Constructor
@@ -64,7 +65,15 @@ public class Bucket implements IDrawable {
         bucketLabel.setText("Count: " + ballCount);
     }
 
+    public void update( ) {
+
+    }
+
     public void draw( Batch batch ) {
+
+    }
+
+    public void clean( ) {
 
     }
     //endregion Mutators
@@ -83,7 +92,7 @@ public class Bucket implements IDrawable {
         } else if( ballColor == Ball.Colors.YELLOW ) {
             return Color.YELLOW;
         } else {
-            System.err.println( "A Color is not recognized " + bucketColor +
+            Gdx.app.error( "Invalid Color", "A Color is not recognized " + bucketColor +
                     " Please update getImage()" );
             return null;
         }

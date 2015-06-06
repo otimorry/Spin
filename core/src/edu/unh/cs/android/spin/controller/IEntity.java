@@ -5,6 +5,8 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 /**
  * Created by Olva on 5/31/15.
  */
-public interface IDrawable {
+public interface IEntity {
     void draw( Batch batch );
+    void update( );
+    void clean( );
 }
